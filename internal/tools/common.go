@@ -135,9 +135,10 @@ func setIf[T comparable](p map[string]any, key string, v T) {
 }
 
 // setJSON adds a map field as the JSON string AWX expects for
-// variables, extra_vars, and similar fields.
+// variables, extra_vars, and similar fields. A nil map (key omitted)
+// leaves the field alone; an empty map clears it.
 func setJSON(p map[string]any, key string, v map[string]any) {
-	if len(v) == 0 {
+	if v == nil {
 		return
 	}
 	b, _ := json.Marshal(v)

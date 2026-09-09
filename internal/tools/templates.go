@@ -81,7 +81,7 @@ type jobTemplateFields struct {
 	InventoryID                     *int           `json:"inventory_id,omitempty"`
 	ExecutionEnvironmentID          *int           `json:"execution_environment_id,omitempty"`
 	Description                     *string        `json:"description,omitempty"`
-	ExtraVars                       map[string]any `json:"extra_vars,omitempty"`
+	ExtraVars                       map[string]any `json:"extra_vars,omitempty" jsonschema:"pass {} to clear"`
 	Limit                           *string        `json:"limit,omitempty"`
 	JobTags                         *string        `json:"job_tags,omitempty"`
 	SkipTags                        *string        `json:"skip_tags,omitempty"`
@@ -153,7 +153,7 @@ type workflowTemplateFields struct {
 	OrganizationID       *int           `json:"organization_id,omitempty"`
 	InventoryID          *int           `json:"inventory_id,omitempty"`
 	Description          *string        `json:"description,omitempty"`
-	ExtraVars            map[string]any `json:"extra_vars,omitempty"`
+	ExtraVars            map[string]any `json:"extra_vars,omitempty" jsonschema:"pass {} to clear"`
 	AllowSimultaneous    *bool          `json:"allow_simultaneous,omitempty"`
 	SurveyEnabled        *bool          `json:"survey_enabled,omitempty"`
 	AskInventoryOnLaunch *bool          `json:"ask_inventory_on_launch,omitempty"`

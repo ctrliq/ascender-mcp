@@ -17,7 +17,7 @@ type schedulePreview struct {
 type scheduleFields struct {
 	Description *string        `json:"description,omitempty"`
 	Enabled     *bool          `json:"enabled,omitempty" jsonschema:"default true; false pauses the schedule"`
-	ExtraData   map[string]any `json:"extra_data,omitempty" jsonschema:"Ansible variables passed when the schedule fires"`
+	ExtraData   map[string]any `json:"extra_data,omitempty" jsonschema:"Ansible variables passed when the schedule fires; pass {} to clear"`
 	InventoryID *int           `json:"inventory_id,omitempty" jsonschema:"override inventory (dropped if ask_inventory_on_launch is false)"`
 	Limit       *string        `json:"limit,omitempty" jsonschema:"Ansible host limit pattern (dropped if ask_limit_on_launch is false)"`
 	JobTags     *string        `json:"job_tags,omitempty"`
@@ -34,7 +34,7 @@ func (f scheduleFields) payload() map[string]any {
 	p := map[string]any{}
 	set(p, "description", f.Description)
 	set(p, "enabled", f.Enabled)
-	if len(f.ExtraData) > 0 {
+	if f.ExtraData != nil {
 		p["extra_data"] = f.ExtraData
 	}
 	set(p, "inventory", f.InventoryID)

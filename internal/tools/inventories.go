@@ -11,7 +11,7 @@ import (
 type inventoryFields struct {
 	Description                  *string        `json:"description,omitempty"`
 	HostFilter                   *string        `json:"host_filter,omitempty" jsonschema:"AWX host_filter query (required when kind=smart)"`
-	Variables                    map[string]any `json:"variables,omitempty" jsonschema:"inventory-level vars"`
+	Variables                    map[string]any `json:"variables,omitempty" jsonschema:"inventory-level vars; pass {} to clear"`
 	PreventInstanceGroupFallback *bool          `json:"prevent_instance_group_fallback,omitempty" jsonschema:"if true, do not fall back past this inventory's instance_groups when routing jobs"`
 }
 
@@ -27,7 +27,7 @@ func (f inventoryFields) payload() map[string]any {
 type hostFields struct {
 	Description *string        `json:"description,omitempty"`
 	Enabled     *bool          `json:"enabled,omitempty" jsonschema:"default true; false takes the host out of rotation"`
-	Variables   map[string]any `json:"variables,omitempty" jsonschema:"Ansible host vars, e.g. {\"ansible_host\": \"10.0.5.42\"}"`
+	Variables   map[string]any `json:"variables,omitempty" jsonschema:"Ansible host vars, e.g. {\"ansible_host\": \"10.0.5.42\"}; pass {} to clear"`
 }
 
 func (f hostFields) payload() map[string]any {
@@ -40,7 +40,7 @@ func (f hostFields) payload() map[string]any {
 
 type groupFields struct {
 	Description *string        `json:"description,omitempty"`
-	Variables   map[string]any `json:"variables,omitempty" jsonschema:"group-level vars inherited by hosts"`
+	Variables   map[string]any `json:"variables,omitempty" jsonschema:"group-level vars inherited by hosts; pass {} to clear"`
 }
 
 func (f groupFields) payload() map[string]any {
@@ -55,7 +55,7 @@ type inventorySourceFields struct {
 	SourceProjectID *int           `json:"source_project_id,omitempty" jsonschema:"required when source=scm"`
 	SourcePath      *string        `json:"source_path,omitempty" jsonschema:"path within the source project (scm sources)"`
 	CredentialID    *int           `json:"credential_id,omitempty"`
-	SourceVars      map[string]any `json:"source_vars,omitempty" jsonschema:"plugin-specific configuration"`
+	SourceVars      map[string]any `json:"source_vars,omitempty" jsonschema:"plugin-specific configuration; pass {} to clear"`
 	UpdateOnLaunch  *bool          `json:"update_on_launch,omitempty"`
 	Overwrite       *bool          `json:"overwrite,omitempty" jsonschema:"remove hosts/groups not present in the source on each sync"`
 	OverwriteVars   *bool          `json:"overwrite_vars,omitempty"`

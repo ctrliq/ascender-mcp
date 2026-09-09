@@ -9,7 +9,7 @@ import (
 
 type instanceGroupFields struct {
 	CredentialID             *int           `json:"credential_id,omitempty" jsonschema:"container groups: kubeconfig credential for the target cluster"`
-	PodSpecOverride          map[string]any `json:"pod_spec_override,omitempty" jsonschema:"container groups: override the pod spec used to spawn job pods"`
+	PodSpecOverride          map[string]any `json:"pod_spec_override,omitempty" jsonschema:"container groups: override the pod spec used to spawn job pods; pass {} to clear"`
 	MaxForks                 *int           `json:"max_forks,omitempty" jsonschema:"hard fork cap (0 = unlimited)"`
 	MaxConcurrentJobs        *int           `json:"max_concurrent_jobs,omitempty"`
 	PolicyInstanceList       []string       `json:"policy_instance_list,omitempty" jsonschema:"execution groups: explicit instance hostnames pinned to this group"`

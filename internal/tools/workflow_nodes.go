@@ -16,7 +16,7 @@ func registerWorkflowNodes(r *registry) {
 			NodeID                 int            `json:"node_id"`
 			Identifier             *string        `json:"identifier,omitempty"`
 			AllParentsMustConverge *bool          `json:"all_parents_must_converge,omitempty"`
-			ExtraData              map[string]any `json:"extra_data,omitempty"`
+			ExtraData              map[string]any `json:"extra_data,omitempty" jsonschema:"pass {} to clear"`
 			InventoryID            *int           `json:"inventory_id,omitempty"`
 			Limit                  *string        `json:"limit,omitempty"`
 			ScmBranch              *string        `json:"scm_branch,omitempty"`
@@ -31,7 +31,7 @@ func registerWorkflowNodes(r *registry) {
 			p := map[string]any{}
 			set(p, "identifier", in.Identifier)
 			set(p, "all_parents_must_converge", in.AllParentsMustConverge)
-			if len(in.ExtraData) > 0 {
+			if in.ExtraData != nil {
 				p["extra_data"] = in.ExtraData
 			}
 			set(p, "inventory", in.InventoryID)
