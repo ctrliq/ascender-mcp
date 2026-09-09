@@ -1,0 +1,74 @@
+name: Release
+
+# Publishes a multi-arch image to GHCR when a GitHub release is published.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read      # checkout
+  packages: write     # push to ghcr.io
+  id-token: write     # sign the provenance attestation
+  attestations: write # store it
+
+# Releases run one at a time and are never cancelled mid-push.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+
+      # Tags bypass branch protection, so refuse anything not on main.
+      - name: Require the tagged commit to be on main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      # A broken tag must not produce an image.
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: go.mod
+      - run: go test ./...
+
+      # No QEMU needed: the Containerfile cross-compiles on the build
+      # host and the runtime stage only copies files.
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Release v1.2.3 produces tags 1.2.3, 1.2, and latest.
+      # Prereleases (v1.2.3-rc1) get only their own version tag.
+      - id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      # VERSION flows to the Containerfile ARG and into main.version.
+      - id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: Containerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ github.event.release.tag_name }}
+
+      # Verify with: gh attestation verify oci://ghcr.io/<owner>/<repo>:<tag> -R <owner>/<repo>
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true

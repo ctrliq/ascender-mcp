@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ascender-mcp
+  labels:
+    app.kubernetes.io/name: ascender-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ascender-mcp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ascender-mcp
+    spec:
+      automountServiceAccountToken: false
+      # imagePullSecrets:
+      #   - name: registry-pull-secret
+      terminationGracePeriodSeconds: 45
+      # 65532 is the nonroot UID in gcr.io/distroless/static:nonroot.
+      # Restricted PSS requires an explicit non-zero runAsUser.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ascender-mcp
+          image: registry.example.com/ascender-mcp:v0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # Your in-cluster Ascender API. Prefer https:// where
+            # available so tokens stay off the pod network. See the
+            # README for all variables.
+            - name: ASCENDER_HOST
+              value: "http://ascender-app-service.ascender.svc.cluster.local"
+            - name: MCP_LISTEN
+              value: ":8080"
+            - name: MCP_PATH
+              value: "/mcp"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "15"]
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "32Mi"
+            limits:
+              memory: "128Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            failureThreshold: 3

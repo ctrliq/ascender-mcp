@@ -1,0 +1,6 @@
+/ascender-mcp
+/bin/
+*.test
+*.out
+.idea/
+.vscode/
