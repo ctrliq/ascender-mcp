@@ -3,7 +3,7 @@ module github.com/ctrliq/ascender-mcp
 go 1.25.13
 
 require (
-	github.com/modelcontextprotocol/go-sdk v1.7.0
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/prometheus/client_golang v1.24.1
 )
 
