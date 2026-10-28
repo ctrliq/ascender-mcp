@@ -245,15 +245,17 @@ Metrics never contain arguments, tokens, or response content.
 `deploy/` holds example Kubernetes manifests: a Deployment, a Service,
 and an Ingress that serves `/mcp` on Ascender's hostname.
 
-The manifests contain placeholder values and will not work as-is. Before
-applying, edit:
+`deployment.yaml` works unchanged for a default Ascender install. It
+pulls `ghcr.io/ctrliq/ascender-mcp:latest` and points `ASCENDER_HOST` at
+the Service a default install creates, `ascender-app-service` in the
+`ascender` namespace. Change `ASCENDER_HOST` only if you renamed the
+Ascender instance or namespace. Pin `image` to a release tag if you want
+upgrades to happen only when you choose. Add any environment variables
+from the [Run](#run) table you need, such as `ASCENDER_TOOLSETS` or
+`ASCENDER_READ_ONLY`.
 
-1. `deployment.yaml`: set `image` to where you pushed the container
-   and `ASCENDER_HOST` to your Ascender URL. Add any environment
-   variables from the [Run](#run) table you need, such as
-   `ASCENDER_TOOLSETS` or `ASCENDER_READ_ONLY`.
-2. `ingress.yaml`: set the hostname and TLS secret name to match your
-   Ascender ingress.
+`ingress.yaml` must be edited before applying. Set the hostname and TLS
+secret name to match your Ascender ingress.
 
 Then:
 
