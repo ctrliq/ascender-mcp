@@ -24,7 +24,25 @@ jobs:
           go-version-file: go.mod
       - run: go build ./...
       - run: go vet ./...
-      - run: go test ./...
+      - run: test -z "$(gofmt -l .)" || { gofmt -l .; echo "::error::gofmt: files above need formatting"; exit 1; }
+      - run: go test -race -coverprofile=cover.out ./...
+      - run: go tool cover -func=cover.out | tail -1
+
+  # Builds the image exactly as release.yml does, minus the push, so a
+  # broken Containerfile or docker action bump fails the PR rather than
+  # the next tagged release.
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: Containerfile
+          push: false
+          build-args: VERSION=ci
 
   # Advisory only: a new upstream CVE should not block unrelated PRs.
   # Findings surface as a warning annotation on the PR.

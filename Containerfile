@@ -2,7 +2,7 @@
 
 # Cross-compiles on the build host for TARGETOS/TARGETARCH, so a
 # multi-arch build runs the Go toolchain once instead of under emulation.
-FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod go mod download
