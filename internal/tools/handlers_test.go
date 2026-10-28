@@ -99,7 +99,9 @@ func TestWaitForJob(t *testing.T) {
 	})
 
 	t.Run("every terminal status ends the wait", func(t *testing.T) {
-		for status := range terminalJobStatuses {
+		// Listed explicitly, not read from terminalJobStatuses, so dropping
+		// a status from that map fails here instead of shrinking the test.
+		for _, status := range []string{"successful", "failed", "error", "canceled"} {
 			s := newStubAscender(t)
 			s.reply("GET /jobs/1", 200, map[string]any{"status": status})
 			job, err := waitForJob(context.Background(), s.client, "jobs/1", time.Second)
