@@ -24,7 +24,14 @@ jobs:
           go-version-file: go.mod
       - run: go build ./...
       - run: go vet ./...
-      - run: test -z "$(gofmt -l .)" || { gofmt -l .; echo "::error::gofmt: files above need formatting"; exit 1; }
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            echo "::error::gofmt found unformatted files"
+            exit 1
+          fi
       - run: go test -race -coverprofile=cover.out ./...
       - run: go tool cover -func=cover.out | tail -1
 
