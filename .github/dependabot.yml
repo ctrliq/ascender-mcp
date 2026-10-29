@@ -1,10 +1,34 @@
+---
+# Security updates arrive without this file; what it adds is version updates.
+#
+# No groups: key on purpose, so every dependency comes as its own pull request.
+#
+# Left out: the docker ecosystem. The image is built from a Containerfile, and
+# Dependabot only matches files named Dockerfile or *.Dockerfile, so an entry
+# for it would find nothing. golang:1.26-alpine and distroless/static-debian12
+# are bumped by hand.
 version: 2
 updates:
+  - package-ecosystem: github-actions
+    # every uses: is pinned to a SHA, and Dependabot keeps the version comment
+    # next to it in step
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "ci"
+    labels:
+      - dependencies
+      - ci
+
   - package-ecosystem: gomod
     directory: /
     schedule:
       interval: weekly
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "build"
+    labels:
+      - dependencies
+      - build
